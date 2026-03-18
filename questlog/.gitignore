@@ -1,0 +1,76 @@
+# ========================
+# PYTHON (backend/)
+# ========================
+
+# ambiente virtual
+backend/venv/
+backend/.venv/
+
+# cache e bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# banco de dados local
+*.db
+*.sqlite3
+
+# variaveis de ambiente (NUNCA subir pro repo)
+.env
+
+# distribuicao
+*.egg-info/
+dist/
+build/
+
+# ========================
+# NODE / REACT (frontend/)
+# ========================
+
+# dependencias
+node_modules/
+
+# build de producao
+frontend/dist/
+
+# cache do vite
+frontend/.vite/
+
+# ========================
+# IDEs
+# ========================
+
+# VS Code (manter settings.json se quiser, mas ignorar o resto)
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# JetBrains (PyCharm, WebStorm)
+.idea/
+
+# ========================
+# OS
+# ========================
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Linux
+*~
+
+# ========================
+# MISC
+# ========================
+
+# logs
+*.log
+npm-debug.log*
+
+# coverage de testes (se adicionar no futuro)
+htmlcov/
+.coverage
+coverage/
