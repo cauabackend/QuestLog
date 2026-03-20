@@ -1,16 +1,38 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getGames } from "../services/api";
+import { getGames, getSteamGames, getSteamProfile } from "../services/api";
 import StatusBadge from "../components/StatusBadge";
 
 function Home() {
   const [games, setGames] = useState([]);
+  const [steamGames, setSteamGames] = useState([]);
+  const [steamProfile, setSteamProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
-      try { setGames(await getGames()); } catch { setGames([]); }
-      finally { setLoading(false); }
+      try {
+        const data = await getGames();
+        setGames(data);
+      } catch {
+        setGames([]);
+      }
+
+      const steamId = localStorage.getItem("questlog_steam_id");
+      if (steamId) {
+        try {
+          const [sg, sp] = await Promise.all([
+            getSteamGames(steamId),
+            getSteamProfile(steamId),
+          ]);
+          setSteamGames(sg.results || []);
+          setSteamProfile(sp);
+        } catch {
+          setSteamGames([]);
+        }
+      }
+
+      setLoading(false);
     }
     load();
   }, []);
@@ -21,6 +43,10 @@ function Home() {
   const current = playing[0] || null;
   const backlog = wishlist.slice(0, 8);
   const recentActivity = [...games].slice(0, 5);
+
+  const steamConnected = steamGames.length > 0;
+  const steamTopGames = steamGames.slice(0, 6);
+  const steamTotalHours = steamGames.reduce((sum, g) => sum + g.playtime_hours, 0);
 
   if (loading) {
     return (
@@ -33,6 +59,7 @@ function Home() {
 
   return (
     <div className="space-y-6">
+
       {current ? (
         <div className="relative rounded-2xl overflow-hidden group" style={{ height: "42vh", minHeight: "320px" }}>
           <img src={current.image_url || "https://placehold.co/1200x600/141414/262626?text="} alt={current.title}
@@ -77,13 +104,13 @@ function Home() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className={`grid ${steamConnected ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-6" : "grid-cols-2 sm:grid-cols-4"} gap-3`}>
         <div className="glass rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[11px] uppercase tracking-wider text-[#525252] font-medium">Total</span>
           </div>
           <p className="text-2xl font-bold text-white tabular-nums">{games.length}</p>
-          <p className="text-[11px] text-[#525252] mt-1">titulos na colecao</p>
+          <p className="text-[11px] text-[#525252] mt-1">na biblioteca</p>
         </div>
         <div className="glass rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
@@ -109,7 +136,90 @@ function Home() {
           <p className="text-2xl font-bold text-amber-400 tabular-nums">{wishlist.length}</p>
           <p className="text-[11px] text-[#525252] mt-1">para jogar</p>
         </div>
+
+        {steamConnected && (
+          <>
+            <div className="glass rounded-xl p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] uppercase tracking-wider text-[#525252] font-medium">Steam</span>
+                <div className="w-2 h-2 rounded-full bg-[#1B9CFC]" />
+              </div>
+              <p className="text-2xl font-bold text-[#1B9CFC] tabular-nums">{steamGames.length}</p>
+              <p className="text-[11px] text-[#525252] mt-1">jogos comprados</p>
+            </div>
+            <div className="glass rounded-xl p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] uppercase tracking-wider text-[#525252] font-medium">Horas</span>
+                <div className="w-2 h-2 rounded-full bg-[#A855F7]" />
+              </div>
+              <p className="text-2xl font-bold text-[#A855F7] tabular-nums">{Math.round(steamTotalHours)}</p>
+              <p className="text-[11px] text-[#525252] mt-1">na Steam</p>
+            </div>
+          </>
+        )}
       </div>
+
+      {steamConnected && (
+        <div>
+          <div className="flex items-baseline justify-between mb-4">
+            <div className="flex items-center gap-3">
+              {steamProfile && <img src={steamProfile.avatar} alt="" className="w-6 h-6 rounded" />}
+              <div>
+                <h3 className="text-sm font-semibold text-[#E5E5E5]">Mais jogados na Steam</h3>
+                <p className="text-[11px] text-[#525252] mt-0.5">{steamProfile?.name || "Steam"}</p>
+              </div>
+            </div>
+            <Link to="/library" className="text-[11px] text-[#DC2626] hover:text-[#EF4444] font-medium transition-colors">Ver todos</Link>
+          </div>
+
+          <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
+            {steamTopGames.map((game) => (
+              <a
+                key={game.steam_appid}
+                href={`https://store.steampowered.com/app/${game.steam_appid}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-shrink-0 w-52 group"
+              >
+                <div className="relative aspect-video rounded-xl overflow-hidden border border-[#1A1A1A] hover:border-[#DC2626]/30 transition-all">
+                  <img
+                    src={game.image_url}
+                    alt={game.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    onError={(e) => { if (game.image_header) e.target.src = game.image_header; else e.target.src = "https://placehold.co/616x353/141414/262626?text=?"; }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  {game.playtime_hours > 0 && (
+                    <span className="absolute top-1.5 right-1.5 text-[9px] font-bold bg-[#DC2626]/90 text-white px-1 py-0.5 rounded">
+                      {game.playtime_hours}h
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] text-[#737373] font-medium mt-2 line-clamp-1 group-hover:text-white transition-colors">{game.title}</p>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!steamConnected && (
+        <div className="glass rounded-xl p-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#1B2838] rounded-lg flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.04 2 11.03c0 3.97 2.84 7.31 6.68 8.45l3.69-2.13c.34-.2.73-.3 1.13-.3h.01c2.76 0 5-1.79 5-4s-2.24-4-5-4c-.28 0-.56.02-.83.07L9 11.03v-.01C9 8.25 10.34 6 12 6c1.66 0 3 2.24 3 5.02 0 .35-.03.69-.08 1.02 1.78.63 3.08 2.15 3.08 3.99 0 2.21-2.24 4-5 4-.39 0-.77-.04-1.13-.11L8 22c1.23.64 2.57 1 4 1 5.52 0 10-3.98 10-8.97C22 6.04 17.52 2 12 2z"/>
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm text-[#E5E5E5] font-medium">Conecte sua Steam</p>
+              <p className="text-[11px] text-[#525252]">Veja seus jogos comprados e horas jogadas</p>
+            </div>
+          </div>
+          <Link to="/library" className="px-4 py-2 bg-[#1B2838] text-white text-xs font-semibold rounded-lg hover:bg-[#2A475E] transition-all">
+            Conectar
+          </Link>
+        </div>
+      )}
 
       {backlog.length > 0 && (
         <div>
@@ -120,12 +230,16 @@ function Home() {
             </div>
             <Link to="/library" className="text-[11px] text-[#DC2626] hover:text-[#EF4444] font-medium transition-colors">Ver todos</Link>
           </div>
+
           <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
             {backlog.map((game) => (
-              <Link key={game.id} to={`/game/${game.id}?source=library`} className="flex-shrink-0 w-32 group">
-                <div className="relative aspect-[3/4] rounded-xl overflow-hidden border border-[#1A1A1A] hover:border-[#DC2626]/30 transition-all">
-                  <img src={game.image_url || "https://placehold.co/200x280/141414/262626?text=?"} alt={game.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              <Link key={game.id} to={`/game/${game.id}?source=library`} className="flex-shrink-0 w-52 group">
+                <div className="relative aspect-video rounded-xl overflow-hidden border border-[#1A1A1A] hover:border-[#DC2626]/30 transition-all">
+                  <img
+                    src={game.image_url || "https://placehold.co/616x353/141414/262626?text=?"}
+                    alt={game.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
                 <p className="text-[11px] text-[#737373] font-medium mt-2 line-clamp-1 group-hover:text-white transition-colors">{game.title}</p>

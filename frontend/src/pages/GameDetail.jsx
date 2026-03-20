@@ -20,6 +20,7 @@ function GameDetail() {
   const [editing, setEditing] = useState(false);
   const [formData, setFormData] = useState({ status: "", rating: "", notes: "" });
   const [saving, setSaving] = useState(false);
+  const [heroSrc, setHeroSrc] = useState("");
 
   useEffect(() => {
     async function loadGame() {
@@ -27,6 +28,7 @@ function GameDetail() {
       try {
         const data = source === "search" ? await getGameDetails(id) : await getGameById(id);
         setGame(data);
+        setHeroSrc(data.image_fallback || data.image_url || "");
         setFormData({ status: data.status || "wishlist", rating: data.rating || "", notes: data.notes || "" });
       } catch { setGame(null); }
       finally { setLoading(false); }
@@ -63,8 +65,6 @@ function GameDetail() {
   );
   if (!game) return <div className="text-center py-20"><p className="text-[#737373]">Jogo nao encontrado</p></div>;
 
-  const imageUrl = game.image_url || "https://placehold.co/1200x500/141414/262626?text=Sem+imagem";
-
   return (
     <div>
       <button onClick={() => navigate(-1)} className="text-[#525252] hover:text-[#E5E5E5] text-sm mb-5 flex items-center gap-1.5 transition-colors">
@@ -73,7 +73,12 @@ function GameDetail() {
       </button>
 
       <div className="relative rounded-2xl overflow-hidden mb-6">
-        <img src={imageUrl} alt={game.title} className="w-full h-64 sm:h-80 object-cover" />
+        <img
+          src={heroSrc || "https://placehold.co/1200x500/141414/262626?text=Sem+imagem"}
+          alt={game.title}
+          className="w-full h-64 sm:h-80 object-cover"
+          onError={() => setHeroSrc("https://placehold.co/1200x500/141414/262626?text=Sem+imagem")}
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/50 to-transparent" />
         <div className="absolute bottom-6 left-6 right-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">{game.title}</h1>

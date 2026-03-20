@@ -27,18 +27,13 @@ async def get_owned_games(steam_id: str) -> list[dict]:
         appid = game.get("appid")
         name = game.get("name", "")
         playtime = game.get("playtime_forever", 0)
-        icon_hash = game.get("img_icon_url", "")
-
-        image_url = None
-        if appid:
-            image_url = f"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/{appid}/header.jpg"
 
         games.append({
             "steam_appid": appid,
             "title": name,
-            "image_url": image_url,
+            "image_url": f"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/{appid}/capsule_616x353.jpg",
+            "image_fallback": f"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/{appid}/header.jpg",
             "playtime_hours": round(playtime / 60, 1),
-            "icon_url": f"https://media.steampowered.com/steamcommunity/public/images/apps/{appid}/{icon_hash}.jpg" if icon_hash else None,
         })
 
     games.sort(key=lambda g: g["playtime_hours"], reverse=True)
