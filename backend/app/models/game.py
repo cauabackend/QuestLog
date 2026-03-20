@@ -1,6 +1,5 @@
-from __future__ import annotations
-
 import enum
+from typing import Optional
 from datetime import datetime, timezone
 
 from sqlalchemy import Integer, String, Text, Enum, DateTime
