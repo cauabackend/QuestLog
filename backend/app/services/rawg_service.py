@@ -2,21 +2,21 @@ import httpx
 
 from app.config import settings
 
+client = httpx.AsyncClient(verify=False, timeout=10.0)
+
 
 async def search_games(query: str, page: int = 1, page_size: int = 12) -> dict:
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            f"{settings.RAWG_BASE_URL}/games",
-            params={
-                "key": settings.RAWG_API_KEY,
-                "search": query,
-                "page": page,
-                "page_size": page_size,
-            },
-            timeout=10.0,
-        )
-        response.raise_for_status()
-        data = response.json()
+    response = await client.get(
+        f"{settings.RAWG_BASE_URL}/games",
+        params={
+            "key": settings.RAWG_API_KEY,
+            "search": query,
+            "page": page,
+            "page_size": page_size,
+        },
+    )
+    response.raise_for_status()
+    data = response.json()
 
     results = [
         {
@@ -34,24 +34,20 @@ async def search_games(query: str, page: int = 1, page_size: int = 12) -> dict:
 
 
 async def get_game_details(rawg_id: int) -> dict:
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            f"{settings.RAWG_BASE_URL}/games/{rawg_id}",
-            params={"key": settings.RAWG_API_KEY},
-            timeout=10.0,
-        )
-        response.raise_for_status()
-        game = response.json()
+    response = await client.get(
+        f"{settings.RAWG_BASE_URL}/games/{rawg_id}",
+        params={"key": settings.RAWG_API_KEY},
+    )
+    response.raise_for_status()
+    game = response.json()
 
     screenshots = []
-    async with httpx.AsyncClient() as client:
-        resp = await client.get(
-            f"{settings.RAWG_BASE_URL}/games/{rawg_id}/screenshots",
-            params={"key": settings.RAWG_API_KEY},
-            timeout=10.0,
-        )
-        if resp.status_code == 200:
-            screenshots = [s["image"] for s in resp.json().get("results", [])]
+    resp = await client.get(
+        f"{settings.RAWG_BASE_URL}/games/{rawg_id}/screenshots",
+        params={"key": settings.RAWG_API_KEY},
+    )
+    if resp.status_code == 200:
+        screenshots = [s["image"] for s in resp.json().get("results", [])]
 
     return {
         "rawg_id": game["id"],
