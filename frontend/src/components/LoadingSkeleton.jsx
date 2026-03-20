@@ -1,16 +1,12 @@
-function LoadingSkeleton({ count = 6 }) {
+function LoadingSkeleton({ count = 10 }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
       {Array.from({ length: count }).map((_, i) => (
-        <div
-          key={i}
-          className="bg-slate-900 rounded-lg border border-slate-800 overflow-hidden animate-pulse"
-        >
-          <div className="w-full h-44 bg-slate-800" />
-          <div className="p-4 space-y-3">
-            <div className="h-4 bg-slate-800 rounded w-3/4" />
-            <div className="h-3 bg-slate-800 rounded w-1/2" />
-            <div className="h-8 bg-slate-800 rounded w-full mt-2" />
+        <div key={i} className="bg-[#141414] rounded-xl border border-[#1A1A1A] overflow-hidden animate-pulse">
+          <div className="aspect-[3/4] bg-[#1A1A1A]" />
+          <div className="px-3 py-2.5 space-y-2">
+            <div className="flex gap-1"><div className="h-2.5 bg-[#1A1A1A] rounded w-10" /><div className="h-2.5 bg-[#1A1A1A] rounded w-8" /></div>
+            <div className="h-7 bg-[#1A1A1A] rounded-lg w-full" />
           </div>
         </div>
       ))}

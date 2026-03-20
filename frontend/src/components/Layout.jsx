@@ -1,11 +1,11 @@
 import { Outlet } from "react-router-dom";
-import Navbar from "./Navbar";
+import Sidebar from "./Sidebar";
 
 function Layout() {
   return (
-    <div className="min-h-screen bg-slate-950">
-      <Navbar />
-      <main className="max-w-6xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-[#0A0A0A]">
+      <Sidebar />
+      <main className="ml-16 p-6 lg:p-8">
         <Outlet />
       </main>
     </div>
