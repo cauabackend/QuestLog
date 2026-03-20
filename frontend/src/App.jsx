@@ -7,6 +7,9 @@ import GameDetail from "./pages/GameDetail";
 
 function App() {
   return (
+    <>
+    <title>Quest Log | Biblioteca de Jogos</title>
+    <div className="app-container">
     <Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
@@ -15,6 +18,8 @@ function App() {
         <Route path="/game/:id" element={<GameDetail />} />
       </Route>
     </Routes>
+    </div>
+    </>
   );
 }
 
