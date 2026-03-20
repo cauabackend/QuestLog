@@ -7,7 +7,8 @@ const api = axios.create({
   },
 });
 
-// biblioteca (grud)
+// ========== BIBLIOTECA (CRUD) ==========
+
 export async function getGames(status = null, sort = "created_at", order = "desc") {
   const params = { sort, order };
   if (status) params.status = status;
@@ -34,7 +35,8 @@ export async function deleteGame(id) {
   await api.delete(`/api/games/${id}`);
 }
 
-// busca rawg
+// ========== BUSCA (RAWG) ==========
+
 export async function searchGames(query, page = 1, pageSize = 12) {
   const { data } = await api.get("/api/search", {
     params: { q: query, page, page_size: pageSize },
@@ -44,5 +46,17 @@ export async function searchGames(query, page = 1, pageSize = 12) {
 
 export async function getGameDetails(rawgId) {
   const { data } = await api.get(`/api/search/${rawgId}`);
+  return data;
+}
+
+// ========== STEAM ==========
+
+export async function getSteamGames(steamId) {
+  const { data } = await api.get(`/api/steam/games/${steamId}`);
+  return data;
+}
+
+export async function getSteamProfile(steamId) {
+  const { data } = await api.get(`/api/steam/profile/${steamId}`);
   return data;
 }
