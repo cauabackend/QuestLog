@@ -8,7 +8,7 @@ import GameDetail from "./pages/GameDetail";
 function App() {
   return (
     <>
-    <title>Quest Log | Biblioteca de Jogos</title>
+    <title>QuestLog</title>
     <div className="app-container">
     <Routes>
       <Route element={<Layout />}>
