@@ -4,8 +4,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import engine, Base
-from app.models import Game  # noqa: F401 — garante que o modelo é registrado
-from app.routers import games, search
+from app.models import Game  # noqa: F401
+from app.routers import games, search, steam
 
 
 @asynccontextmanager
@@ -31,6 +31,7 @@ app.add_middleware(
 
 app.include_router(games.router)
 app.include_router(search.router)
+app.include_router(steam.router)
 
 
 @app.get("/health")
