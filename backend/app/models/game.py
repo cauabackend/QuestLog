@@ -20,12 +20,12 @@ class Game(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     rawg_id: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
-    image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    image_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     status: Mapped[GameStatus] = mapped_column(
         Enum(GameStatus), default=GameStatus.WISHLIST, nullable=False
     )
-    rating: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    rating: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )
