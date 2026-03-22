@@ -9,7 +9,7 @@ from app.services import rawg_service, game_service
 router = APIRouter(prefix="/api/search", tags=["search"])
 
 
-@router.get("/")
+@router.get("")
 async def search_games(
     q: str = Query(min_length=2),
     page: int = Query(default=1, ge=1),

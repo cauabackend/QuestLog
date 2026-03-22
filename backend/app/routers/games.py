@@ -10,7 +10,7 @@ from app.services import game_service
 router = APIRouter(prefix="/api/games", tags=["games"])
 
 
-@router.get("/", response_model=list[GameResponse])
+@router.get("", response_model=list[GameResponse])
 def list_games(
     status: GameStatus | None = Query(default=None),
     sort: str = Query(default="created_at", pattern="^(title|created_at|rating)$"),
@@ -29,7 +29,7 @@ def get_game(game_id: int, db: Session = Depends(get_db), current_user: User = D
     return game
 
 
-@router.post("/", response_model=GameResponse, status_code=201)
+@router.post("", response_model=GameResponse, status_code=201)
 def add_game(data: GameCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     existing = game_service.get_game_by_rawg_id(db, data.rawg_id, user_id=current_user.id)
     if existing:
