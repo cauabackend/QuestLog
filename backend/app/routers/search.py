@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from httpx import HTTPStatusError
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_db
+from app.dependencies import get_db, get_current_user
+from app.models.user import User
 from app.services import rawg_service, game_service
 
 router = APIRouter(prefix="/api/search", tags=["search"])
@@ -14,6 +15,7 @@ async def search_games(
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=12, ge=1, le=40),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     try:
         data = await rawg_service.search_games(q, page, page_size)
@@ -21,20 +23,20 @@ async def search_games(
         raise HTTPException(status_code=502, detail="RAWG API unavailable")
 
     for game in data["results"]:
-        existing = game_service.get_game_by_rawg_id(db, game["rawg_id"])
+        existing = game_service.get_game_by_rawg_id(db, game["rawg_id"], user_id=current_user.id)
         game["in_library"] = existing is not None
 
     return data
 
 
 @router.get("/{rawg_id}")
-async def get_game_details(rawg_id: int, db: Session = Depends(get_db)):
+async def get_game_details(rawg_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     try:
         data = await rawg_service.get_game_details(rawg_id)
     except HTTPStatusError:
         raise HTTPException(status_code=502, detail="RAWG API unavailable")
 
-    existing = game_service.get_game_by_rawg_id(db, rawg_id)
+    existing = game_service.get_game_by_rawg_id(db, rawg_id, user_id=current_user.id)
     data["in_library"] = existing is not None
 
     return data

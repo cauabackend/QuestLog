@@ -2,7 +2,7 @@ import enum
 from typing import Optional
 from datetime import datetime, timezone
 
-from sqlalchemy import Integer, String, Text, Enum, DateTime
+from sqlalchemy import Integer, String, Text, Enum, DateTime, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -19,7 +19,8 @@ class Game(Base):
     __tablename__ = "games"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    rawg_id: Mapped[int] = mapped_column(Integer, unique=True, nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
+    rawg_id: Mapped[int] = mapped_column(Integer, nullable=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     image_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     status: Mapped[GameStatus] = mapped_column(

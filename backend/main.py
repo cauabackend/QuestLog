@@ -4,8 +4,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import engine, Base
-from app.models import Game  # noqa: F401
-from app.routers import games, search, steam
+from app.models import User, Game  # noqa: F401
+from app.routers import auth, games, search, steam
 
 
 @asynccontextmanager
@@ -17,7 +17,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="QuestLog API",
     description="API do QuestLog — site para gerenciar sua biblioteca de jogos",
-    version="1.0.0",
+    version="2.0.0",
     lifespan=lifespan,
 )
 
@@ -32,6 +32,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth.router)
 app.include_router(games.router)
 app.include_router(search.router)
 app.include_router(steam.router)
