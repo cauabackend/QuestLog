@@ -1,4 +1,5 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const NAV_ITEMS = [
   {
@@ -31,6 +32,16 @@ const NAV_ITEMS = [
 ];
 
 function Sidebar() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  function handleLogout() {
+    logout();
+    navigate("/login");
+  }
+
+  const initial = user?.username?.charAt(0).toUpperCase() || "?";
+
   return (
     <aside className="fixed left-0 top-0 bottom-0 w-16 bg-[#0A0A0A] border-r border-[#1A1A1A] flex flex-col items-center py-5 z-50">
       <NavLink to="/" className="w-9 h-9 bg-[#DC2626] rounded-lg flex items-center justify-center text-[11px] font-extrabold text-white mb-8 hover:bg-[#B91C1C] transition-colors">
@@ -59,9 +70,15 @@ function Sidebar() {
         ))}
       </nav>
 
-      <div className="w-8 h-8 rounded-full bg-[#141414] border border-[#262626] flex items-center justify-center text-[10px] font-bold text-[#525252]">
-        C
-      </div>
+      <button
+        onClick={handleLogout}
+        className="w-8 h-8 rounded-full bg-[#141414] border border-[#262626] flex items-center justify-center text-[10px] font-bold text-[#525252] hover:border-[#DC2626]/30 hover:text-[#DC2626] transition-all group relative"
+      >
+        {initial}
+        <span className="absolute left-14 px-2 py-1 bg-[#141414] border border-[#262626] rounded text-xs text-[#A3A3A3] whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+          Sair ({user?.username})
+        </span>
+      </button>
     </aside>
   );
 }
