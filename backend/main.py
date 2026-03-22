@@ -19,6 +19,7 @@ app = FastAPI(
     description="API do QuestLog — site para gerenciar sua biblioteca de jogos",
     version="2.0.0",
     lifespan=lifespan,
+    redirect_slashes=False,
 )
 
 app.add_middleware(
