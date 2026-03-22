@@ -14,7 +14,10 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    if (err.response?.status === 401) {
+    if (
+      err.response?.status === 401 &&
+      !err.config.url.includes("/api/auth/")
+    ) {
       localStorage.removeItem("questlog_token");
       window.location.href = "/login";
     }
@@ -22,7 +25,7 @@ api.interceptors.response.use(
   }
 );
 
-// AUTH
+// AUTH ==========
 
 export async function registerUser(email, username, password) {
   const { data } = await api.post("/api/auth/register", { email, username, password });
