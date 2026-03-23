@@ -40,9 +40,14 @@ function AppRoutes() {
 
 function App() {
   return (
-    <AuthProvider>
+    <>
+      <title>QuestLog</title>
+      <div className="app-container">
+      <AuthProvider>
       <AppRoutes />
-    </AuthProvider>
+      </AuthProvider>
+      </div>
+    </>
   );
 }
 
