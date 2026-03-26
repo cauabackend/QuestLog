@@ -1,17 +1,19 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import StatusBadge from "./StatusBadge";
 
+const PLACEHOLDER = "https://placehold.co/616x353/141414/262626?text=Sem+imagem";
+
 function GameCard({ game, onAdd, showStatus = false }) {
-  const [imgSrc, setImgSrc] = useState(
-    game.image_url || "https://placehold.co/616x353/141414/262626?text=Sem+imagem"
-  );
+  const triedFallback = useRef(false);
+  const [imgSrc, setImgSrc] = useState(game.image_url || PLACEHOLDER);
 
   function handleImgError() {
-    if (game.image_fallback && imgSrc !== game.image_fallback) {
+    if (!triedFallback.current && game.image_fallback && imgSrc !== game.image_fallback) {
+      triedFallback.current = true;
       setImgSrc(game.image_fallback);
     } else {
-      setImgSrc("https://placehold.co/616x353/141414/262626?text=Sem+imagem");
+      setImgSrc(PLACEHOLDER);
     }
   }
 
@@ -36,6 +38,8 @@ function GameCard({ game, onAdd, showStatus = false }) {
             alt={game.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
             onError={handleImgError}
+            loading="lazy"
+            referrerPolicy="no-referrer"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A]/90 via-transparent to-transparent" />
 
